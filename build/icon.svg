@@ -1,0 +1,60 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Hintergrund mit modernem Gradient -->
+    <defs>
+        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#007AFF;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#0056b3;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+    
+    <!-- Hintergrund -->
+    <rect width="1024" height="1024" rx="224" fill="url(#grad)"/>
+    
+    <!-- Tastatur -->
+    <g transform="translate(162, 312)">
+        <!-- Tastatur-Gehäuse -->
+        <rect width="700" height="400" rx="40" fill="white" fill-opacity="0.15"/>
+        
+        <!-- Tastatur-Tasten -->
+        <!-- Erste Reihe -->
+        <g transform="translate(50, 50)">
+            <rect width="70" height="70" rx="12" fill="white"/>
+            <rect x="90" width="70" height="70" rx="12" fill="white"/>
+            <rect x="180" width="70" height="70" rx="12" fill="white"/>
+            <rect x="270" width="70" height="70" rx="12" fill="white"/>
+            <rect x="360" width="70" height="70" rx="12" fill="white"/>
+            <rect x="450" width="70" height="70" rx="12" fill="white"/>
+            <rect x="540" width="70" height="70" rx="12" fill="white"/>
+        </g>
+        
+        <!-- Zweite Reihe -->
+        <g transform="translate(80, 140)">
+            <rect width="70" height="70" rx="12" fill="white"/>
+            <rect x="90" width="70" height="70" rx="12" fill="white"/>
+            <rect x="180" width="70" height="70" rx="12" fill="white"/>
+            <rect x="270" width="70" height="70" rx="12" fill="white"/>
+            <rect x="360" width="70" height="70" rx="12" fill="white"/>
+            <rect x="450" width="70" height="70" rx="12" fill="white"/>
+        </g>
+        
+        <!-- Dritte Reihe -->
+        <g transform="translate(100, 230)">
+            <rect width="70" height="70" rx="12" fill="white"/>
+            <rect x="90" width="70" height="70" rx="12" fill="white"/>
+            <rect x="180" width="70" height="70" rx="12" fill="white"/>
+            <rect x="270" width="70" height="70" rx="12" fill="white"/>
+            <rect x="360" width="70" height="70" rx="12" fill="white"/>
+        </g>
+        
+        <!-- Leertaste -->
+        <rect x="150" y="320" width="400" height="50" rx="12" fill="white"/>
+    </g>
+    
+    <!-- Blinkender Cursor -->
+    <rect x="462" y="200" width="100" height="12" fill="white" rx="6">
+        <animate attributeName="opacity"
+                 values="1;0;1" 
+                 dur="1.5s"
+                 repeatCount="indefinite"/>
+    </rect>
+</svg> 

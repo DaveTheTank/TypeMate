@@ -1,0 +1,51 @@
+{
+  "name": "typemate",
+  "version": "1.0.0",
+  "description": "Ein Tool zum automatisierten Tippen von Text",
+  "author": "DaveTheTank",
+  "main": "dist/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "tsc",
+    "watch": "tsc -w",
+    "dev": "concurrently \"npm run watch\" \"npm run start\"",
+    "clean": "rimraf dist",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "com.davethetank.typemate",
+    "productName": "TypeMate",
+    "mac": {
+      "category": "public.app-category.utilities",
+      "icon": "build/icon.icns",
+      "darkModeSupport": true,
+      "target": ["dmg"]
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "files": [
+      "dist/**/*",
+      "index.html",
+      "styles.css",
+      "build/icon.*"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.10",
+    "concurrently": "^8.2.2",
+    "electron": "^28.3.3",
+    "electron-builder": "^24.9.1",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.7.2"
+  }
+}
