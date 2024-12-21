@@ -1,15 +1,3 @@
-// Definieren Sie den Typ für das Window-Objekt
-declare global {
-    interface Window {
-        electronAPI: {
-            saveClipboard: (data: any) => void;
-            saveSettings: (settings: any) => void;
-            typeText: (data: { text: string, speed: number, delay: number }) => void;
-            saveTheme: (theme: string) => void;
-        }
-    }
-}
-
 class ClipboardUI {
     private clipboardList: HTMLDivElement;
     private addButton: HTMLButtonElement;
