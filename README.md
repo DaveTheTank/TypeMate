@@ -51,4 +51,4 @@ TypeMate ist ein elegantes Desktop-Tool zum automatisierten Tippen von Text. Es 
 - Node.js (v18 oder höher)
 - npm (v8 oder höher)
 
-### Setup 
+### Setup
