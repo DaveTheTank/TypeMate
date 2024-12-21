@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { IElectronAPI } from './types/electron';
+import { IElectronAPI } from './types/types';
 
 const electronAPI: IElectronAPI = {
     typeText: (data) => ipcRenderer.send('typeText', data),
