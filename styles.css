@@ -1,0 +1,405 @@
+/* Basis-Farbvariablen */
+:root {
+    /* Light Theme (Standard) */
+    --bg-primary: rgba(255, 255, 255, 0.98);
+    --bg-secondary: #f8f9fa;
+    --text-primary: #333;
+    --text-secondary: #666;
+    --border-color: rgba(0,0,0,0.1);
+    --accent-color: #007AFF;
+    --delete-color: #ff3b30;
+    --hover-color: #0056b3;
+    --input-bg: #f8f9fa;
+    --modal-overlay: rgba(0, 0, 0, 0.5);
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+    --bg-primary: rgba(30, 30, 30, 0.98);
+    --bg-secondary: #2c2c2c;
+    --text-primary: #fff;
+    --text-secondary: #aaa;
+    --border-color: rgba(255,255,255,0.1);
+    --accent-color: #0A84FF;
+    --delete-color: #FF453A;
+    --hover-color: #409CFF;
+    --input-bg: #1c1c1e;
+    --modal-overlay: rgba(0, 0, 0, 0.7);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: transparent;
+    color: #333;
+    -webkit-app-region: drag;
+}
+
+.container {
+    width: 500px;
+    background: var(--bg-primary);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    min-height: 470px;
+    color: var(--text-primary);
+}
+
+input, textarea, button, .button-container, .clipboard-entry {
+    -webkit-app-region: no-drag;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 0 4px 10px 4px;
+    border-bottom: 1px solid var(--border-color);
+    min-height: 40px;
+}
+
+.header h2 {
+    margin: 0;
+    font-size: 1.3em;
+    font-weight: 600;
+    color: var(--accent-color);
+    white-space: nowrap;
+}
+
+.icon-button {
+    padding: 6px;
+    background: none;
+    border: none;
+    font-size: 1.1em;
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+}
+
+.icon-button:hover {
+    color: #333;
+}
+
+.clipboard-entry {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px;
+    margin-bottom: 6px;
+    display: flex;
+    gap: 8px;
+}
+
+.clipboard-entry textarea {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    min-height: 50px;
+    resize: vertical;
+}
+
+.clipboard-entry button {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 0.85em;
+}
+
+#add-clipboard {
+    background-color: #f8f9fa;
+    border: 1px dashed #ccc;
+    color: #666;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+#add-clipboard:hover {
+    background-color: #007AFF;
+    border-color: #007AFF;
+    color: white;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background: var(--bg-primary);
+    margin: 10% auto;
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+    border-radius: 12px;
+    color: var(--text-primary);
+}
+
+.settings-group {
+    margin-bottom: 15px;
+}
+
+.settings-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.settings-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.typing-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 10px;
+}
+
+.speed-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
+.speed-control label {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.speed-control input[type="range"] {
+    width: 100px;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.clipboard-entry button {
+    align-self: flex-start;
+    padding: 8px 12px;
+    background-color: #007AFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clipboard-entry .delete-button {
+    background-color: #ff3b30;
+}
+
+.clipboard-entry .delete-button:hover {
+    background-color: #dc3545;
+}
+
+.clipboard-entry button:hover {
+    background-color: #0056b3;
+}
+
+.hotkey-input-container {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.hotkey-input-container input {
+    flex: 1;
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+.hotkey-input-container input.recording {
+    background-color: #fff0f0;
+    border-color: #ff3b30;
+}
+
+.record-button {
+    padding: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+}
+
+.record-button.recording {
+    color: #ff3b30;
+    animation: pulse 1.5s infinite;
+}
+
+.hint {
+    display: block;
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 4px;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.footer {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    text-align: center;
+    font-size: 0.8em;
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+.clipboards-container {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+/* Theme Toggle Button */
+.theme-switch-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.theme-toggle {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 8px 16px;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+    background: var(--accent-color);
+    color: white;
+}
+
+.theme-toggle .light-icon {
+    display: none;
+}
+
+.theme-toggle .dark-icon {
+    display: inline-block;
+}
+
+[data-theme="dark"] .theme-toggle .light-icon {
+    display: inline-block;
+}
+
+[data-theme="dark"] .theme-toggle .dark-icon {
+    display: none;
+}
+
+/* Speichern Button Style */
+#save-settings {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    margin-top: 20px;
+}
+
+#save-settings:hover {
+    background: var(--hover-color);
+    transform: translateY(-1px);
+}
+
+/* Zusätzliche Dark Mode Anpassungen */
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+    color: #666;
+}
+
+[data-theme="dark"] .icon-button {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .icon-button:hover {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] #add-clipboard {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] #add-clipboard:hover {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+}
+
+/* Range Slider Anpassungen */
+input[type="range"] {
+    -webkit-appearance: none;
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    height: 6px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    cursor: pointer;
+    border: none;
+}
+
+[data-theme="dark"] input[type="range"]::-webkit-slider-thumb {
+    box-shadow: 0 0 0 2px var(--bg-primary);
+}
+
+/* Hotkey Input im Dark Mode */
+[data-theme="dark"] .hotkey-input-container input {
+    background: var(--input-bg);
+}
+
+[data-theme="dark"] .hotkey-input-container input.recording {
+    background-color: rgba(255, 69, 58, 0.1);
+    border-color: var(--delete-color);
+}
+ 

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TypeMate</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>TypeMate</h2>
+            <div class="typing-controls">
+                <div class="speed-control">
+                    <label><span id="typing-speed-display">10</span> Buchstaben/Sek.</label>
+                    <input type="range" min="1" max="30" value="10" id="speed-slider">
+                </div>
+            </div>
+            <button id="settings-button" class="icon-button">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+        
+        <div class="clipboards-container">
+            <div id="clipboard-list"></div>
+            <button id="add-clipboard">+ Neues Clipboard</button>
+        </div>
+
+        <div class="footer">
+            <span>Entwickelt von DaveTheTank</span>
+        </div>
+
+        <div id="settings-modal" class="modal">
+            <div class="modal-content">
+                <h3>Einstellungen</h3>
+                <div class="settings-group">
+                    <label>Globaler Hotkey</label>
+                    <div class="hotkey-input-container">
+                        <input type="text" id="global-hotkey" placeholder="Klicken zum Aufnehmen..." readonly>
+                        <button id="record-hotkey" class="record-button">
+                            <i class="fas fa-circle"></i>
+                        </button>
+                    </div>
+                    <span class="hint">Klicken Sie auf das Eingabefeld und drücken Sie die gewünschte Tastenkombination</span>
+                </div>
+                <div class="settings-group">
+                    <label>Verzögerung vor dem Tippen (<span id="delay-display">3</span> Sekunden)</label>
+                    <input type="range" min="1" max="10" value="3" id="start-delay">
+                </div>
+                <div class="settings-group">
+                    <label>Theme</label>
+                    <div class="theme-switch-container">
+                        <button id="theme-toggle" class="theme-toggle">
+                            <i class="fas fa-sun light-icon"></i>
+                            <i class="fas fa-moon dark-icon"></i>
+                        </button>
+                    </div>
+                </div>
+                <button id="save-settings">Speichern</button>
+            </div>
+        </div>
+    </div>
+    <script src="dist/renderer.js"></script>
+</body>
+</html> 
