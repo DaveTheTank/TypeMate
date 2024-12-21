@@ -46,6 +46,10 @@
     "electron": "^28.3.3",
     "electron-builder": "^24.9.1",
     "rimraf": "^5.0.5",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "@types/robotjs": "^0.5.1"
+  },
+  "dependencies": {
+    "robotjs": "^0.6.0"
   }
 }

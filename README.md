@@ -52,3 +52,8 @@ TypeMate ist ein elegantes Desktop-Tool zum automatisierten Tippen von Text. Es 
 - npm (v8 oder höher)
 
 ### Setup
+
+### Windows-Spezifische Hinweise
+- Stellen Sie sicher, dass Sie TypeMate mit Administratorrechten ausführen
+- Bei der ersten Nutzung müssen Sie möglicherweise Zugriff auf die Tastatureingabe erlauben
+- Falls das Tippen nicht funktioniert, starten Sie TypeMate neu
