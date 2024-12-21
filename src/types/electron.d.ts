@@ -8,7 +8,7 @@ export interface IElectronAPI {
         globalHotkey: string;
         startDelay: number;
     }) => void;
-    saveTheme: (theme: string) => void;
+    saveTheme: (theme: 'light' | 'dark') => void;
 }
 
 declare global {

@@ -3,7 +3,8 @@ import { IElectronAPI } from './types/electron';
 
 const electronAPI: IElectronAPI = {
     typeText: (data) => ipcRenderer.send('typeText', data),
-    saveSettings: (settings) => ipcRenderer.send('saveSettings', settings)
+    saveSettings: (settings) => ipcRenderer.send('saveSettings', settings),
+    saveTheme: (theme) => ipcRenderer.send('saveTheme', theme)
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI); 

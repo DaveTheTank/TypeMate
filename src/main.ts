@@ -9,6 +9,7 @@ const execPromise = promisify(exec);
 interface Settings {
     globalHotkey: string;
     startDelay: number;
+    theme?: 'light' | 'dark';
 }
 
 class ClipboardManagerApp {
@@ -59,6 +60,16 @@ class ClipboardManagerApp {
                 console.log('Settings saved:', settings);
             } catch (error) {
                 console.error('Error saving settings:', error);
+            }
+        });
+
+        ipcMain.on('saveTheme', (event, theme: 'light' | 'dark') => {
+            try {
+                this.settings.theme = theme;
+                this.saveSettings();
+                console.log('Theme saved:', theme);
+            } catch (error) {
+                console.error('Error saving theme:', error);
             }
         });
     }
