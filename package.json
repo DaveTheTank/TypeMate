@@ -1,6 +1,8 @@
 {
   "name": "clipboard-manager",
   "version": "1.0.0",
+  "description": "A modern clipboard manager for efficient text typing",
+  "author": "DaveTheTank",
   "main": "dist/main.js",
   "scripts": {
     "start": "electron .",
@@ -37,8 +39,7 @@
     },
     "win": {
       "icon": "build/icon.ico",
-      "target": ["nsis"],
-      "resizable": true
+      "target": ["nsis"]
     },
     "directories": {
       "output": "dist",
