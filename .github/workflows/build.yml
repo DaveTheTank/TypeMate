@@ -1,44 +1,63 @@
-name: Build
-on: [push, pull_request]
+name: Build TypeMate
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-    env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     strategy:
       matrix:
         os: [macos-latest, windows-latest]
+        node-version: [18.x]
 
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          
-      - name: Install dependencies
-        run: npm install
-        
-      - name: Build TypeScript
-        run: npm run build
-        
-      - name: Build Electron app
-        run: |
-          if [ "$RUNNER_OS" == "macOS" ]; then
-            npm run dist:mac
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            npm run dist:win
-          fi
-        shell: bash
-        
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.os }}-build
-          path: |
-            dist/*.dmg
-            dist/*.exe
-          compression-level: 0
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        npm install -g node-gyp
+        npm install
+
+    - name: Install dependencies (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        npm install -g node-gyp
+        npm install --platform=win32
+
+    - name: Build TypeScript
+      run: npm run build
+
+    - name: Build Application
+      run: |
+        if [ "$RUNNER_OS" == "macOS" ]; then
+          npm run dist:mac
+        elif [ "$RUNNER_OS" == "Windows" ]; then
+          npm run dist:win
+        fi
+      shell: bash
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: TypeMate-${{ matrix.os }}
+        path: |
+          dist/*.dmg
+          dist/*.exe

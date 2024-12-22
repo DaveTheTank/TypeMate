@@ -12,16 +12,15 @@
     "dist": "electron-builder",
     "dist:mac": "electron-builder --mac",
     "dist:win": "electron-builder --win",
-    "postinstall": "electron-builder install-app-deps && @electron/rebuild",
-    "rebuild": "@electron/rebuild"
+    "postinstall": "electron-builder install-app-deps",
+    "rebuild": "node-gyp rebuild"
   },
   "devDependencies": {
     "@types/node": "^20.17.10",
     "@types/electron": "^1.6.10",
     "concurrently": "^8.2.2",
-    "electron": "^25.9.8",
+    "electron": "^22.3.27",
     "electron-builder": "^24.9.1",
-    "@electron/rebuild": "^3.6.0",
     "rimraf": "^5.0.5",
     "typescript": "^5.7.2"
   },
