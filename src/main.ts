@@ -28,18 +28,26 @@ class ClipboardManagerApp {
     private setupIPCHandlers() {
         ipcMain.on('typeText', async (event, data: { text: string; speed: number; delay: number }) => {
             try {
-                console.log('Starting typing with delay:', data.delay);
-                await new Promise(resolve => setTimeout(resolve, data.delay));
-
-                const script = `
-                    tell application "System Events"
-                        repeat with char in (text items of "${data.text}")
-                            keystroke char
-                            delay ${Math.floor(1000 / data.speed) / 1000}
-                        end repeat
-                    end tell
-                `;
-                await execPromise(`osascript -e '${script}'`);
+                if (process.platform === 'win32') {
+                    const charDelay = Math.floor(1000 / data.speed);
+                    const robot = require('robotjs');
+                    robot.setKeyboardDelay(charDelay);
+                    
+                    for (const char of data.text) {
+                        robot.typeString(char);
+                        await new Promise(resolve => setTimeout(resolve, charDelay));
+                    }
+                } else {
+                    const script = `
+                        tell application "System Events"
+                            repeat with char in (text items of "${data.text}")
+                                keystroke char
+                                delay ${Math.floor(1000 / data.speed) / 1000}
+                            end repeat
+                        end tell
+                    `;
+                    await execPromise(`osascript -e '${script}'`);
+                }
                 
                 event.reply('typeText-complete');
             } catch (error) {

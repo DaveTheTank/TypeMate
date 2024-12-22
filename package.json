@@ -22,7 +22,9 @@
     "rimraf": "^5.0.5",
     "typescript": "^5.7.2"
   },
-  "dependencies": {},
+  "dependencies": {
+    "robotjs": "^0.6.0"
+  },
   "build": {
     "appId": "com.davethetank.typemate",
     "productName": "TypeMate",

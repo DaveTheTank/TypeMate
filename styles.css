@@ -38,6 +38,9 @@ body {
 
 .container {
     width: 500px;
+    height: 500px;
+    overflow: hidden;
+    position: relative;
     background: var(--bg-primary);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -495,5 +498,28 @@ input[type="range"]::-webkit-slider-thumb:hover {
     0% { opacity: 1; }
     50% { opacity: 0.6; }
     100% { opacity: 1; }
+}
+
+/* Scrollbar verstecken */
+::-webkit-scrollbar {
+    display: none;
+}
+
+/* Schließen-Button für Windows */
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 8px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    background: none;
+    border: none;
+    font-size: 16px;
+    z-index: 1000;
+}
+
+.close-button:hover {
+    color: var(--delete-color);
 }
  
