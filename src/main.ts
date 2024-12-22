@@ -33,7 +33,10 @@ class ClipboardManagerApp {
                     const ks = require('node-key-sender');
                     const path = require('path');
                     
-                    const jarPath = path.join(process.resourcesPath, 'jar', 'key-sender.jar');
+                    const jarPath = app.isPackaged 
+                        ? path.join(process.resourcesPath, 'app.asar.unpacked/jar/key-sender.jar')
+                        : path.join(process.resourcesPath, 'jar', 'key-sender.jar');
+                    
                     ks.setKeyboardLayout("QWERTZ");
                     ks.jarPath = jarPath;
                     
