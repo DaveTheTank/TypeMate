@@ -48,12 +48,10 @@
     "extraResources": [
       {
         "from": "node_modules/node-key-sender/jar",
-        "to": "app.asar.unpacked/jar",
+        "to": "resources/jar",
         "filter": ["*.jar"]
       }
     ],
-    "asar": {
-      "smartUnpack": true
-    }
+    "asar": false
   }
 }

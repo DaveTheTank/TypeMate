@@ -34,8 +34,11 @@ class ClipboardManagerApp {
                     const path = require('path');
                     
                     const jarPath = app.isPackaged 
-                        ? path.join(process.resourcesPath, 'app.asar.unpacked/jar/key-sender.jar')
-                        : path.join(process.resourcesPath, 'jar', 'key-sender.jar');
+                        ? path.join(process.resourcesPath, 'resources/jar/key-sender.jar')
+                        : path.join(__dirname, '../node_modules/node-key-sender/jar/key-sender.jar');
+                    
+                    console.log('JAR Path:', jarPath);
+                    console.log('File exists:', fs.existsSync(jarPath));
                     
                     ks.setKeyboardLayout("QWERTZ");
                     ks.jarPath = jarPath;
