@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import * as robot from 'robotjs';
 
 const execPromise = promisify(exec);
 
@@ -23,30 +24,48 @@ class ClipboardManagerApp {
         app.on('ready', this.createWindow);
         app.on('window-all-closed', this.handleWindowsClosed);
         this.setupIPCHandlers();
+
+        if (process.platform === 'win32') {
+            robot.setKeyboardDelay(1);
+        }
     }
 
     private setupIPCHandlers() {
         ipcMain.on('typeText', async (event, data: { text: string; speed: number; delay: number }) => {
             try {
                 console.log('Starting typing with delay:', data.delay);
-                // Warte die eingestellte Verzögerung
                 await new Promise(resolve => setTimeout(resolve, data.delay));
 
-                // Berechne die Verzögerung zwischen den Buchstaben
-                const charDelay = Math.floor(1000 / data.speed);
-
-                // Erstelle das AppleScript - OHNE zusätzliche Verzögerung
-                const script = `
-                    tell application "System Events"
-                        repeat with char in (text items of "${data.text}")
-                            keystroke char
-                            delay ${charDelay / 1000}
-                        end repeat
-                    end tell
-                `;
-
-                // Führe das AppleScript aus
-                await execPromise(`osascript -e '${script}'`);
+                if (process.platform === 'win32') {
+                    const charDelay = Math.floor(1000 / data.speed);
+                    
+                    for (const char of data.text) {
+                        try {
+                            if (char === '\n') {
+                                robot.keyTap('enter');
+                            } else if (char === '\t') {
+                                robot.keyTap('tab');
+                            } else if (char === ' ') {
+                                robot.keyTap('space');
+                            } else {
+                                robot.typeString(char);
+                            }
+                            await new Promise(resolve => setTimeout(resolve, charDelay));
+                        } catch (charError) {
+                            console.error('Error typing character:', char, charError);
+                        }
+                    }
+                } else {
+                    const script = `
+                        tell application "System Events"
+                            repeat with char in (text items of "${data.text}")
+                                keystroke char
+                                delay ${Math.floor(1000 / data.speed) / 1000}
+                            end repeat
+                        end tell
+                    `;
+                    await execPromise(`osascript -e '${script}'`);
+                }
             } catch (error) {
                 console.error('Error typing text:', error);
             }

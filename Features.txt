@@ -1,0 +1,5 @@
+1. Einen Clipboardtyper
+2. Möglichkeit mehrere Clipboards zu erstellen  
+3. Möglichkeit die geschwindigkeit zu ändern
+4. Hotkeys für die verschiedenen Clipboards
+5. Ansehnliche UI

@@ -22,22 +22,40 @@
     "rimraf": "^5.0.5",
     "typescript": "^5.7.2"
   },
+  "dependencies": {
+    "robotjs": "^0.6.0"
+  },
   "build": {
     "appId": "com.davethetank.typemate",
     "productName": "TypeMate",
     "mac": {
       "icon": "build/icon.icns",
       "category": "public.app-category.productivity",
-      "target": ["dmg"],
+      "target": [
+        "dmg"
+      ],
       "darkModeSupport": true
     },
     "win": {
       "icon": "build/icon.ico",
-      "target": ["nsis"]
+      "target": [
+        "nsis"
+      ],
+      "extraResources": [
+        {
+          "from": "build/",
+          "to": "build",
+          "filter": [
+            "*.ico"
+          ]
+        }
+      ]
     },
     "linux": {
       "icon": "build/icon.png",
-      "target": ["AppImage"]
+      "target": [
+        "AppImage"
+      ]
     },
     "directories": {
       "output": "dist",
