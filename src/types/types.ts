@@ -1,12 +1,14 @@
+export interface Settings {
+    globalHotkey: string;
+    startDelay: number;
+}
+
 export interface IElectronAPI {
     typeText: (data: {
         text: string;
         speed: number;
         delay: number;
-    }) => void;
-    saveSettings: (settings: {
-        globalHotkey: string;
-        startDelay: number;
-    }) => void;
+    }) => Promise<void>;
+    saveSettings: (settings: Settings) => void;
     saveTheme: (theme: 'light' | 'dark') => void;
 } 

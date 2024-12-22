@@ -12,6 +12,8 @@ class ClipboardUI {
     private recordButton: HTMLButtonElement;
     private isRecording: boolean = false;
     private themeToggle: HTMLButtonElement;
+    private activeClipboardText: string = '';
+    private activeClipboardEntry: HTMLDivElement | null = null;
 
     constructor() {
         this.clipboardList = document.getElementById('clipboard-list') as HTMLDivElement;
@@ -70,6 +72,7 @@ class ClipboardUI {
             this.hotkeyInput.value = 'Drücke Tastenkombination...';
             this.hotkeyInput.classList.add('recording');
             this.recordButton.classList.add('recording');
+            pressedKeys.clear();
         };
 
         const stopRecording = () => {
@@ -87,20 +90,17 @@ class ClipboardUI {
             }
         });
 
+        // Speichere die aktuell gedrückten Tasten
+        let pressedKeys = new Set<string>();
+        let finalHotkey = '';
+
         document.addEventListener('keydown', (e) => {
             if (!this.isRecording) return;
             e.preventDefault();
             e.stopPropagation();
 
-            let keys = [];
-            if (e.metaKey) keys.push('⌘');
-            if (e.ctrlKey) keys.push('⌃');
-            if (e.altKey) keys.push('⌥');
-            if (e.shiftKey) keys.push('⇧');
-            
-            // Füge nur Nicht-Modifier-Tasten hinzu
-            if (!['Meta', 'Control', 'Alt', 'Shift'].includes(e.key)) {
-                // Wandle spezielle Tasten in lesbare Namen um
+            // Füge die Taste zum Set hinzu
+            if (e.key !== 'Meta' && e.key !== 'Control' && e.key !== 'Alt' && e.key !== 'Shift') {
                 const keyName = {
                     'ArrowUp': '↑',
                     'ArrowDown': '↓',
@@ -111,12 +111,38 @@ class ClipboardUI {
                     'Tab': '⇥',
                     ' ': 'Space'
                 }[e.key] || e.key.toUpperCase();
-
-                keys.push(keyName);
+                pressedKeys.add(keyName);
             }
 
-            if (keys.length > 0) {
-                this.hotkeyInput.value = keys.join(' + ');
+            // Füge Modifier-Tasten hinzu
+            if (e.metaKey) pressedKeys.add('⌘');
+            if (e.ctrlKey) pressedKeys.add('⌃');
+            if (e.altKey) pressedKeys.add('⌥');
+            if (e.shiftKey) pressedKeys.add('⇧');
+
+            // Aktualisiere das Input-Feld
+            if (pressedKeys.size > 0) {
+                finalHotkey = Array.from(pressedKeys).join(' + ');
+                this.hotkeyInput.value = finalHotkey;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (!this.isRecording) return;
+            
+            if (e.key === 'Escape') {
+                pressedKeys.clear();
+                this.hotkeyInput.value = '';
+                stopRecording();
+                return;
+            }
+
+            // Wenn mindestens eine nicht-Modifier Taste dabei ist, beende die Aufnahme
+            const hasNonModifier = Array.from(pressedKeys).some(key => 
+                !['⌘', '⌃', '⌥', '⇧'].includes(key));
+
+            if (hasNonModifier) {
+                this.hotkeyInput.value = finalHotkey;
                 stopRecording();
             }
         });
@@ -129,14 +155,6 @@ class ClipboardUI {
                 stopRecording();
             }
         });
-
-        // Escape beendet die Aufnahme
-        document.addEventListener('keyup', (e) => {
-            if (this.isRecording && e.key === 'Escape') {
-                this.hotkeyInput.value = '';
-                stopRecording();
-            }
-        });
     }
 
     private createNewClipboard() {
@@ -146,17 +164,51 @@ class ClipboardUI {
         const contentInput = document.createElement('textarea');
         contentInput.placeholder = 'Text eingeben...';
         
+        clipboardDiv.addEventListener('click', (e) => {
+            if ((e.target as HTMLElement).tagName === 'BUTTON') return;
+            
+            this.clipboardList.querySelectorAll('.clipboard-entry').forEach(entry => {
+                entry.classList.remove('active');
+            });
+            
+            clipboardDiv.classList.add('active');
+            this.activeClipboardEntry = clipboardDiv;
+            this.activeClipboardText = contentInput.value;
+        });
+        
+        contentInput.addEventListener('input', () => {
+            if (clipboardDiv.classList.contains('active')) {
+                this.activeClipboardText = contentInput.value;
+            }
+        });
+        
         const buttonContainer = document.createElement('div');
         buttonContainer.className = 'button-container';
         
         const typeButton = document.createElement('button');
         typeButton.innerHTML = '<i class="fas fa-keyboard"></i>';
         typeButton.title = 'Text tippen';
-        typeButton.onclick = () => {
+        typeButton.onclick = async () => {
             const text = contentInput.value;
             const speed = parseInt(this.speedSlider.value);
             const delay = parseInt(this.startDelay.value) * 1000;
-            window.electronAPI.typeText({ text, speed, delay });
+
+            try {
+                // Warte-Status
+                typeButton.classList.add('waiting');
+                await new Promise(resolve => setTimeout(resolve, delay));
+                typeButton.classList.remove('waiting');
+
+                // Tipp-Status
+                typeButton.classList.add('typing');
+                await window.electronAPI.typeText({ text, speed, delay: 0 });
+            } catch (error) {
+                console.error('Error typing text:', error);
+            } finally {
+                // Reset Button-Status nach dem Tippen
+                typeButton.classList.remove('typing');
+                typeButton.classList.remove('waiting');
+            }
         };
         
         const deleteButton = document.createElement('button');
@@ -173,11 +225,67 @@ class ClipboardUI {
         clipboardDiv.appendChild(contentInput);
         clipboardDiv.appendChild(buttonContainer);
         this.clipboardList.appendChild(clipboardDiv);
+
+        if (this.clipboardList.children.length === 1) {
+            clipboardDiv.classList.add('active');
+            this.activeClipboardEntry = clipboardDiv;
+            this.activeClipboardText = contentInput.value;
+        }
+    }
+
+    public async typeActiveClipboard() {
+        console.log('typeActiveClipboard called');
+
+        if (!this.activeClipboardEntry) {
+            console.log('Kein aktiver Clipboard gefunden');
+            return;
+        }
+
+        const contentInput = this.activeClipboardEntry.querySelector('textarea') as HTMLTextAreaElement;
+        if (!contentInput || !contentInput.value) {
+            console.log('Kein Text im aktiven Clipboard gefunden');
+            return;
+        }
+
+        const text = contentInput.value;
+        const speed = parseInt(this.speedSlider.value);
+        const delay = parseInt(this.startDelay.value) * 1000;
+
+        try {
+            const typeButton = this.activeClipboardEntry.querySelector('button') as HTMLButtonElement;
+            if (typeButton) {
+                // Warte-Status
+                typeButton.classList.add('waiting');
+                console.log('Warte für', delay, 'ms');
+                await new Promise(resolve => setTimeout(resolve, delay));
+                typeButton.classList.remove('waiting');
+
+                // Tipp-Status
+                typeButton.classList.add('typing');
+                console.log('Starte Tippen:', { text, speed });
+                
+                // Tippe den Text ohne zusätzliche Verzögerung
+                await window.electronAPI.typeText({
+                    text,
+                    speed,
+                    delay: 0  // Keine zusätzliche Verzögerung hier
+                });
+            }
+        } catch (error) {
+            console.error('Error typing active clipboard:', error);
+        } finally {
+            if (this.activeClipboardEntry) {
+                const typeButton = this.activeClipboardEntry.querySelector('button');
+                if (typeButton) {
+                    typeButton.classList.remove('typing');
+                }
+            }
+        }
     }
 
     private saveSettings() {
         const settings = {
-            globalHotkey: this.globalHotkey.value,
+            globalHotkey: this.hotkeyInput.value,
             startDelay: parseInt(this.startDelay.value)
         };
         window.electronAPI.saveSettings(settings);
@@ -203,7 +311,10 @@ class ClipboardUI {
     }
 }
 
+let clipboardUI: ClipboardUI;
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded');
-    new ClipboardUI();
+    clipboardUI = new ClipboardUI();
+    (window as any).clipboardUI = clipboardUI;
 }); 

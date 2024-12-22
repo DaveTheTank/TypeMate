@@ -1,9 +1,9 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, globalShortcut } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { keyboard, Key } from '@nut-tree/nut-js';
+const robot = require('robotjs');
 
 const execPromise = promisify(exec);
 
@@ -18,6 +18,7 @@ class ClipboardManagerApp {
         globalHotkey: '',
         startDelay: 3
     };
+    private currentHotkey: string | null = null;
 
     constructor() {
         this.loadSettings();
@@ -25,24 +26,31 @@ class ClipboardManagerApp {
         app.on('window-all-closed', this.handleWindowsClosed);
         this.setupIPCHandlers();
 
-        if (process.platform === 'win32') {
-            keyboard.setKeyboardDelay(1);
-        }
+        app.on('will-quit', () => {
+            globalShortcut.unregisterAll();
+        });
     }
 
     private setupIPCHandlers() {
         ipcMain.on('typeText', async (event, data: { text: string; speed: number; delay: number }) => {
             try {
-                console.log('Starting typing with delay:', data.delay);
-                await new Promise(resolve => setTimeout(resolve, data.delay));
-
+                console.log('Typing text:', data);
+                
                 if (process.platform === 'win32') {
                     const charDelay = Math.floor(1000 / data.speed);
+                    robot.setKeyboardDelay(charDelay);
                     
                     for (const char of data.text) {
                         try {
-                            await keyboard.type(char);
-                            await new Promise(resolve => setTimeout(resolve, charDelay));
+                            if (char === '\n') {
+                                robot.keyTap('enter');
+                            } else if (char === '\t') {
+                                robot.keyTap('tab');
+                            } else if (char === ' ') {
+                                robot.keyTap('space');
+                            } else {
+                                robot.typeString(char);
+                            }
                         } catch (charError) {
                             console.error('Error typing character:', char, charError);
                         }
@@ -58,20 +66,61 @@ class ClipboardManagerApp {
                     `;
                     await execPromise(`osascript -e '${script}'`);
                 }
+                
+                event.reply('typeText-complete');
             } catch (error) {
                 console.error('Error typing text:', error);
+                event.reply('typeText-error', error);
             }
         });
 
         ipcMain.on('saveSettings', (event, settings: Settings) => {
             try {
+                if (this.currentHotkey) {
+                    globalShortcut.unregister(this.currentHotkey);
+                }
+
                 this.settings = settings;
+                
+                const electronHotkey = this.convertToElectronHotkey(settings.globalHotkey);
+                if (electronHotkey) {
+                    this.currentHotkey = electronHotkey;
+                    globalShortcut.register(electronHotkey, () => {
+                        if (this.mainWindow) {
+                            this.mainWindow.webContents.send('typeActiveClipboard');
+                        }
+                    });
+                }
+
                 this.saveSettings();
                 console.log('Settings saved:', settings);
             } catch (error) {
                 console.error('Error saving settings:', error);
             }
         });
+    }
+
+    private convertToElectronHotkey(uiHotkey: string): string | null {
+        if (!uiHotkey) return null;
+
+        const mapping: { [key: string]: string } = {
+            '⌘': 'Command',
+            '⌃': 'Control',
+            '⌥': 'Alt',
+            '⇧': 'Shift',
+            '↑': 'Up',
+            '↓': 'Down',
+            '←': 'Left',
+            '→': 'Right',
+            '↵': 'Return',
+            '⇥': 'Tab',
+            'Space': 'Space'
+        };
+
+        return uiHotkey
+            .split(' + ')
+            .map(key => mapping[key] || key)
+            .join('+');
     }
 
     private loadSettings() {
@@ -110,6 +159,13 @@ class ClipboardManagerApp {
             titleBarStyle: 'hidden',
             vibrancy: 'window',
             visualEffectState: 'active',
+            alwaysOnTop: true,
+        });
+
+        this.mainWindow.on('focus', () => {
+            if (this.mainWindow) {
+                this.mainWindow.setAlwaysOnTop(true, 'floating');
+            }
         });
 
         this.mainWindow.loadFile(path.join(__dirname, '../index.html'));
