@@ -3,7 +3,7 @@ name: Build TypeMate
 on:
   push:
     branches: [ main ]
-    tags: [ 'v*' ]
+    tags: [ "v*" ]
   pull_request:
     branches: [ main ]
 
@@ -23,21 +23,21 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+        cache: "npm"
 
     - name: Install Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.x'
+        python-version: "3.x"
 
     - name: Install dependencies (macOS)
-      if: matrix.os == 'macos-latest'
+      if: matrix.os == "macos-latest"
       run: |
         npm install -g node-gyp
         npm install
 
     - name: Install dependencies (Windows)
-      if: matrix.os == 'windows-latest'
+      if: matrix.os == "windows-latest"
       run: |
         npm install -g node-gyp
         npm install --platform=win32
