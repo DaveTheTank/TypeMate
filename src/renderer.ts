@@ -1,213 +1,166 @@
-// Importieren Sie die Typdefinitionen
-import './types/electron';
-
-// Die globale Deklaration wird jetzt aus electron.d.ts importiert
 class ClipboardUI {
-    private clipboardList: HTMLDivElement;
-    private addButton: HTMLButtonElement;
-    private settingsButton: HTMLButtonElement;
-    private settingsModal: HTMLDivElement;
-    private speedSlider: HTMLInputElement;
-    private speedDisplay: HTMLSpanElement;
-    private globalHotkey: HTMLInputElement;
-    private startDelay: HTMLInputElement;
-    private delayDisplay: HTMLSpanElement;
-    private hotkeyInput: HTMLInputElement;
-    private recordButton: HTMLButtonElement;
-    private isRecording: boolean = false;
-    private themeToggle: HTMLButtonElement;
-
     constructor() {
-        this.clipboardList = document.getElementById('clipboard-list') as HTMLDivElement;
-        this.addButton = document.getElementById('add-clipboard') as HTMLButtonElement;
-        this.settingsButton = document.getElementById('settings-button') as HTMLButtonElement;
-        this.settingsModal = document.getElementById('settings-modal') as HTMLDivElement;
-        this.speedSlider = document.getElementById('speed-slider') as HTMLInputElement;
-        this.speedDisplay = document.getElementById('typing-speed-display') as HTMLSpanElement;
-        this.globalHotkey = document.getElementById('global-hotkey') as HTMLInputElement;
-        this.startDelay = document.getElementById('start-delay') as HTMLInputElement;
-        this.delayDisplay = document.getElementById('delay-display') as HTMLSpanElement;
-        this.hotkeyInput = document.getElementById('global-hotkey') as HTMLInputElement;
-        this.recordButton = document.getElementById('record-hotkey') as HTMLButtonElement;
-        this.themeToggle = document.getElementById('theme-toggle') as HTMLButtonElement;
-        
-        this.setupEventListeners();
-        this.setupHotkeyRecording();
-        this.loadTheme();
-        this.setupThemeToggle();
-        console.log('ClipboardUI initialized');
+        this.initializeUI();
     }
 
-    private setupEventListeners() {
-        this.addButton.addEventListener('click', () => {
-            console.log('Add button clicked');
-            this.createNewClipboard();
-        });
+    private initializeUI() {
+        const addButton = document.getElementById('add-clipboard');
+        const clipboardList = document.getElementById('clipboard-list');
+        const settingsButton = document.getElementById('settings-button');
+        const settingsModal = document.getElementById('settings-modal');
+        const speedSlider = document.getElementById('speed-slider') as HTMLInputElement;
+        const speedDisplay = document.getElementById('typing-speed-display');
+        const themeToggle = document.getElementById('theme-toggle');
+        const closeButton = document.querySelector('.close-button') as HTMLElement;
+        const startDelay = document.getElementById('start-delay') as HTMLInputElement;
+        const delayDisplay = document.getElementById('delay-display');
+        const saveSettingsButton = document.getElementById('save-settings');
 
-        this.settingsButton.addEventListener('click', () => {
-            this.settingsModal.style.display = 'block';
-        });
+        // Theme Toggle
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                window.electronAPI.saveTheme(newTheme as 'light' | 'dark');
+                
+                // Icon aktualisieren
+                const icon = themeToggle.querySelector('i');
+                if (icon) {
+                    icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                }
+            });
+        }
 
-        this.speedSlider.addEventListener('input', () => {
-            this.speedDisplay.textContent = this.speedSlider.value;
-        });
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
 
-        this.startDelay.addEventListener('input', () => {
-            this.delayDisplay.textContent = this.startDelay.value;
-        });
+        if (addButton) {
+            addButton.addEventListener('click', () => {
+                const entry = this.createClipboardEntry();
+                clipboardList?.appendChild(entry);
+            });
+        }
 
+        if (settingsButton && settingsModal) {
+            settingsButton.addEventListener('click', () => {
+                settingsModal.style.display = 'block';
+            });
+        }
+
+        if (closeButton && settingsModal) {
+            closeButton.addEventListener('click', () => {
+                settingsModal.style.display = 'none';
+            });
+        }
+
+        // Close modal when clicking outside
         window.addEventListener('click', (event) => {
-            if (event.target === this.settingsModal) {
-                this.settingsModal.style.display = 'none';
+            if (event.target === settingsModal && settingsModal) {
+                settingsModal.style.display = 'none';
             }
         });
 
-        document.getElementById('save-settings')?.addEventListener('click', () => {
-            this.saveSettings();
-            this.settingsModal.style.display = 'none';
-        });
-    }
+        // Update speed display
+        if (speedSlider && speedDisplay) {
+            speedSlider.addEventListener('input', () => {
+                speedDisplay.textContent = speedSlider.value;
+            });
+        }
 
-    private setupHotkeyRecording() {
-        const startRecording = () => {
-            this.isRecording = true;
-            this.hotkeyInput.value = 'Drücke Tastenkombination...';
-            this.hotkeyInput.classList.add('recording');
-            this.recordButton.classList.add('recording');
+        // Verzögerungszeit-Anzeige aktualisieren
+        if (startDelay && delayDisplay) {
+            startDelay.addEventListener('input', () => {
+                delayDisplay.textContent = startDelay.value;
+            });
+        }
+
+        // Einstellungen speichern
+        if (saveSettingsButton) {
+            saveSettingsButton.addEventListener('click', () => {
+                const settings = {
+                    globalHotkey: (document.getElementById('global-hotkey') as HTMLInputElement).value,
+                    startDelay: parseFloat(startDelay?.value || '3')
+                };
+                
+                window.electronAPI.saveSettings(settings);
+                
+                if (settingsModal) {
+                    settingsModal.style.display = 'none';
+                }
+            });
+        }
+
+        // Lade gespeicherte Einstellungen
+        const loadSettings = async () => {
+            try {
+                const savedSettings = localStorage.getItem('settings');
+                if (savedSettings) {
+                    const settings = JSON.parse(savedSettings);
+                    if (startDelay) {
+                        startDelay.value = settings.startDelay.toString();
+                        if (delayDisplay) {
+                            delayDisplay.textContent = settings.startDelay.toString();
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
         };
 
-        const stopRecording = () => {
-            this.isRecording = false;
-            this.hotkeyInput.classList.remove('recording');
-            this.recordButton.classList.remove('recording');
-        };
-
-        this.hotkeyInput.addEventListener('click', startRecording);
-        this.recordButton.addEventListener('click', () => {
-            if (this.isRecording) {
-                stopRecording();
-            } else {
-                startRecording();
-            }
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (!this.isRecording) return;
-            e.preventDefault();
-            e.stopPropagation();
-
-            let keys = [];
-            if (e.metaKey) keys.push('⌘');
-            if (e.ctrlKey) keys.push('⌃');
-            if (e.altKey) keys.push('⌥');
-            if (e.shiftKey) keys.push('⇧');
-            
-            // Füge nur Nicht-Modifier-Tasten hinzu
-            if (!['Meta', 'Control', 'Alt', 'Shift'].includes(e.key)) {
-                // Wandle spezielle Tasten in lesbare Namen um
-                const keyName = {
-                    'ArrowUp': '↑',
-                    'ArrowDown': '↓',
-                    'ArrowLeft': '←',
-                    'ArrowRight': '→',
-                    'Enter': '↵',
-                    'Escape': 'Esc',
-                    'Tab': '⇥',
-                    ' ': 'Space'
-                }[e.key] || e.key.toUpperCase();
-
-                keys.push(keyName);
-            }
-
-            if (keys.length > 0) {
-                this.hotkeyInput.value = keys.join(' + ');
-                stopRecording();
-            }
-        });
-
-        // Klick außerhalb beendet die Aufnahme
-        document.addEventListener('click', (e) => {
-            if (this.isRecording && 
-                e.target !== this.hotkeyInput && 
-                e.target !== this.recordButton) {
-                stopRecording();
-            }
-        });
-
-        // Escape beendet die Aufnahme
-        document.addEventListener('keyup', (e) => {
-            if (this.isRecording && e.key === 'Escape') {
-                this.hotkeyInput.value = '';
-                stopRecording();
-            }
-        });
+        loadSettings();
     }
 
-    private createNewClipboard() {
-        const clipboardDiv = document.createElement('div');
-        clipboardDiv.className = 'clipboard-entry';
-        
-        const contentInput = document.createElement('textarea');
-        contentInput.placeholder = 'Text eingeben...';
-        
+    private createClipboardEntry(): HTMLDivElement {
+        const entry = document.createElement('div');
+        entry.className = 'clipboard-entry';
+
+        const textarea = document.createElement('textarea');
+        textarea.placeholder = 'Text eingeben...';
+
         const buttonContainer = document.createElement('div');
         buttonContainer.className = 'button-container';
-        
+
         const typeButton = document.createElement('button');
         typeButton.innerHTML = '<i class="fas fa-keyboard"></i>';
-        typeButton.title = 'Text tippen';
-        typeButton.onclick = () => {
-            const text = contentInput.value;
-            const speed = parseInt(this.speedSlider.value);
-            const delay = parseInt(this.startDelay.value) * 1000;
-            window.electronAPI.typeText({ text, speed, delay });
+        typeButton.onclick = async () => {
+            try {
+                typeButton.classList.add('waiting');
+                const delay = parseFloat((document.getElementById('start-delay') as HTMLInputElement).value) * 1000;
+                console.log('Starting delay:', delay); // Debug-Log
+                await new Promise(resolve => setTimeout(resolve, delay));
+                typeButton.classList.remove('waiting');
+
+                typeButton.classList.add('typing');
+                const globalSpeedSlider = document.getElementById('speed-slider') as HTMLInputElement;
+                await window.electronAPI.typeText({
+                    text: textarea.value,
+                    speed: parseInt(globalSpeedSlider.value),
+                    delay: 0
+                });
+            } catch (error) {
+                console.error('Error during typing:', error);
+            } finally {
+                typeButton.classList.remove('typing');
+            }
         };
-        
+
         const deleteButton = document.createElement('button');
         deleteButton.className = 'delete-button';
         deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-        deleteButton.title = 'Clipboard löschen';
-        deleteButton.onclick = () => {
-            clipboardDiv.remove();
-        };
-        
+        deleteButton.onclick = () => entry.remove();
+
         buttonContainer.appendChild(typeButton);
         buttonContainer.appendChild(deleteButton);
         
-        clipboardDiv.appendChild(contentInput);
-        clipboardDiv.appendChild(buttonContainer);
-        this.clipboardList.appendChild(clipboardDiv);
-    }
+        entry.appendChild(textarea);
+        entry.appendChild(buttonContainer);
 
-    private saveSettings() {
-        const settings = {
-            globalHotkey: this.globalHotkey.value,
-            startDelay: parseInt(this.startDelay.value)
-        };
-        window.electronAPI.saveSettings(settings);
-    }
-
-    private setupThemeToggle() {
-        this.themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            this.setTheme(newTheme);
-            window.electronAPI.saveTheme(newTheme);
-        });
-    }
-
-    private loadTheme() {
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        this.setTheme(savedTheme);
-    }
-
-    private setTheme(theme: string) {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
+        return entry;
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded');
-    new ClipboardUI();
-}); 
+// Initialisierung
+new ClipboardUI(); 

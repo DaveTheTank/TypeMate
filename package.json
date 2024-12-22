@@ -22,9 +22,7 @@
     "rimraf": "^5.0.5",
     "typescript": "^5.7.2"
   },
-  "dependencies": {
-    "robotjs": "^0.6.0"
-  },
+  "dependencies": {},
   "build": {
     "appId": "com.davethetank.typemate",
     "productName": "TypeMate",
@@ -36,20 +34,7 @@
     },
     "win": {
       "icon": "build/icon.ico",
-      "target": ["nsis"],
-      "extraResources": [
-        {
-          "from": "build/",
-          "to": "build",
-          "filter": [
-            "*.ico"
-          ]
-        }
-      ]
-    },
-    "linux": {
-      "icon": "build/icon.png",
-      "target": ["AppImage"]
+      "target": ["nsis"]
     },
     "directories": {
       "output": "dist",

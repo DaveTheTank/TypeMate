@@ -91,47 +91,91 @@ input, textarea, button, .button-container, .clipboard-entry {
 
 .clipboard-entry {
     background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 8px;
-    margin-bottom: 6px;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
     display: flex;
-    gap: 8px;
+    gap: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.clipboard-entry:hover {
+    transform: translateY(-1px);
 }
 
 .clipboard-entry textarea {
     flex: 1;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 80px;
+    color: var(--text-primary);
     font-size: 14px;
-    min-height: 50px;
     resize: vertical;
+    transition: border-color 0.2s ease;
+}
+
+.clipboard-entry textarea:focus {
+    border-color: var(--accent-color);
+    outline: none;
+}
+
+.clipboard-entry .button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .clipboard-entry button {
-    width: 30px;
-    height: 30px;
-    padding: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent-color);
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 6px;
-    font-size: 0.85em;
+    font-size: 16px;
+}
+
+.clipboard-entry button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.clipboard-entry .delete-button {
+    background: var(--delete-color);
+    opacity: 0.8;
+}
+
+.clipboard-entry .delete-button:hover {
+    opacity: 1;
 }
 
 #add-clipboard {
-    background-color: #f8f9fa;
-    border: 1px dashed #ccc;
-    color: #666;
-    padding: 8px;
-    border-radius: 8px;
+    background: var(--bg-secondary);
+    border: 2px dashed var(--border-color);
+    color: var(--text-secondary);
+    padding: 12px;
+    border-radius: 10px;
+    width: 100%;
+    margin-top: 10px;
     transition: all 0.2s ease;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 #add-clipboard:hover {
-    background-color: #007AFF;
-    border-color: #007AFF;
+    background: var(--accent-color);
+    border-color: var(--accent-color);
     color: white;
 }
 
@@ -147,21 +191,27 @@ input, textarea, button, .button-container, .clipboard-entry {
 
 .modal-content {
     background: var(--bg-primary);
-    margin: 10% auto;
-    padding: 20px;
-    width: 90%;
-    max-width: 400px;
-    border-radius: 12px;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.modal-content h3 {
+    margin-top: 0;
     color: var(--text-primary);
+    font-size: 1.2em;
+    margin-bottom: 20px;
 }
 
 .settings-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .settings-group label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-size: 0.9em;
 }
 
 .settings-group input {
@@ -273,12 +323,12 @@ input, textarea, button, .button-container, .clipboard-entry {
 
 .footer {
     margin-top: auto;
-    padding-top: 15px;
-    border-top: 1px solid #eee;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
     text-align: center;
-    font-size: 0.8em;
     color: var(--text-secondary);
-    border-color: var(--border-color);
+    font-size: 0.9em;
+    opacity: 0.8;
 }
 
 .clipboards-container {
@@ -374,23 +424,24 @@ input, textarea, button, .button-container, .clipboard-entry {
 /* Range Slider Anpassungen */
 input[type="range"] {
     -webkit-appearance: none;
-    background: var(--bg-secondary);
-    border-radius: 10px;
     height: 6px;
+    background: var(--border-color);
+    border-radius: 3px;
+    width: 150px;
 }
 
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
+    width: 18px;
+    height: 18px;
     background: var(--accent-color);
+    border-radius: 50%;
     cursor: pointer;
-    border: none;
+    transition: all 0.2s ease;
 }
 
-[data-theme="dark"] input[type="range"]::-webkit-slider-thumb {
-    box-shadow: 0 0 0 2px var(--bg-primary);
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
 }
 
 /* Hotkey Input im Dark Mode */
@@ -401,5 +452,48 @@ input[type="range"]::-webkit-slider-thumb {
 [data-theme="dark"] .hotkey-input-container input.recording {
     background-color: rgba(255, 69, 58, 0.1);
     border-color: var(--delete-color);
+}
+
+.global-speed-control {
+    background: var(--bg-secondary);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.global-speed-control label {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    min-width: 120px;
+}
+
+/* Button Status Colors */
+.clipboard-entry button.waiting {
+    background-color: #FFB800 !important;
+    animation: pulse 1s infinite;
+}
+
+.clipboard-entry button.typing {
+    background-color: #34C759 !important;
+}
+
+/* Dark Mode Anpassungen für die Status-Farben */
+[data-theme="dark"] .clipboard-entry button.waiting {
+    background-color: #FFB800 !important;
+}
+
+[data-theme="dark"] .clipboard-entry button.typing {
+    background-color: #32D74B !important;
+}
+
+/* Pulse Animation für den Wartezustand */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
 }
  

@@ -1,19 +1,14 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { IElectronAPI } from './types/electron';
+import { IElectronAPI } from './types/types';
 
 const electronAPI: IElectronAPI = {
-    saveClipboard: (data: any) => {
-        ipcRenderer.send('saveClipboard', data);
-    },
-    typeText: (data: { text: string; speed: number; delay: number }) => {
+    typeText: (data) => new Promise((resolve, reject) => {
         ipcRenderer.send('typeText', data);
-    },
-    saveSettings: (settings: { globalHotkey: string; startDelay: number }) => {
-        ipcRenderer.send('saveSettings', settings);
-    },
-    saveTheme: (theme: string) => {
-        ipcRenderer.send('saveTheme', theme);
-    }
+        ipcRenderer.once('typeText-complete', () => resolve());
+        ipcRenderer.once('typeText-error', (_, error) => reject(error));
+    }),
+    saveSettings: (settings) => ipcRenderer.send('saveSettings', settings),
+    saveTheme: (theme) => ipcRenderer.send('saveTheme', theme)
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI); 

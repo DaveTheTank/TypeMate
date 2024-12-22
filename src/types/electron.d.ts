@@ -1,12 +1,13 @@
-export interface IElectronAPI {
-    saveClipboard: (data: any) => void;
+interface IElectronAPI {
+    typeText: (data: { text: string; speed: number; delay: number }) => Promise<void>;
     saveSettings: (settings: { globalHotkey: string; startDelay: number }) => void;
-    typeText: (data: { text: string; speed: number; delay: number }) => void;
-    saveTheme: (theme: string) => void;
+    saveTheme: (theme: 'light' | 'dark') => void;
 }
 
 declare global {
     interface Window {
         electronAPI: IElectronAPI;
     }
-} 
+}
+
+export {}; 

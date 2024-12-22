@@ -29,26 +29,22 @@ class ClipboardManagerApp {
         ipcMain.on('typeText', async (event, data: { text: string; speed: number; delay: number }) => {
             try {
                 console.log('Starting typing with delay:', data.delay);
-                // Warte die eingestellte Verzögerung
                 await new Promise(resolve => setTimeout(resolve, data.delay));
 
-                // Berechne die Verzögerung zwischen den Buchstaben
-                const charDelay = Math.floor(1000 / data.speed);
-
-                // Erstelle das AppleScript - OHNE zusätzliche Verzögerung
                 const script = `
                     tell application "System Events"
                         repeat with char in (text items of "${data.text}")
                             keystroke char
-                            delay ${charDelay / 1000}
+                            delay ${Math.floor(1000 / data.speed) / 1000}
                         end repeat
                     end tell
                 `;
-
-                // Führe das AppleScript aus
                 await execPromise(`osascript -e '${script}'`);
+                
+                event.reply('typeText-complete');
             } catch (error) {
                 console.error('Error typing text:', error);
+                event.reply('typeText-error', error);
             }
         });
 
@@ -99,6 +95,13 @@ class ClipboardManagerApp {
             titleBarStyle: 'hidden',
             vibrancy: 'window',
             visualEffectState: 'active',
+            alwaysOnTop: true,
+        });
+
+        this.mainWindow.on('focus', () => {
+            if (this.mainWindow) {
+                this.mainWindow.setAlwaysOnTop(true, 'floating');
+            }
         });
 
         this.mainWindow.loadFile(path.join(__dirname, '../index.html'));
