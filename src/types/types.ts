@@ -11,4 +11,7 @@ export interface IElectronAPI {
     }) => Promise<void>;
     saveSettings: (settings: Settings) => void;
     saveTheme: (theme: 'light' | 'dark') => void;
+    closeWindow: () => void;
+    minimizeWindow: () => void;
+    adjustWindowSize: (height: number) => void;
 } 

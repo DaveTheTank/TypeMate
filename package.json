@@ -37,7 +37,8 @@
     },
     "win": {
       "icon": "build/icon.ico",
-      "target": ["nsis"]
+      "target": ["nsis"],
+      "resizable": true
     },
     "directories": {
       "output": "dist",
@@ -48,7 +49,8 @@
       "node_modules/**/*",
       "package.json",
       "index.html",
-      "styles.css"
+      "styles.css",
+      "build/icon.ico"
     ]
   }
 }

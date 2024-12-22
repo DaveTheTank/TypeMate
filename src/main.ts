@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, globalShortcut } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import { exec } from 'child_process';
@@ -22,6 +22,7 @@ class ClipboardManagerApp {
         this.loadSettings();
         app.on('ready', this.createWindow);
         app.on('window-all-closed', this.handleWindowsClosed);
+        app.on('will-quit', this.cleanup);
         this.setupIPCHandlers();
     }
 
@@ -29,20 +30,21 @@ class ClipboardManagerApp {
         ipcMain.on('typeText', async (event, data: { text: string; speed: number; delay: number }) => {
             try {
                 if (process.platform === 'win32') {
-                    const charDelay = Math.floor(1000 / data.speed);
-                    const robot = require('robotjs');
-                    robot.setKeyboardDelay(charDelay);
-                    
-                    for (const char of data.text) {
-                        robot.typeString(char);
-                        await new Promise(resolve => setTimeout(resolve, charDelay));
+                    const ks = require('node-key-sender');
+                    const charDelay = Math.floor(200 / data.speed);
+                    ks.setOption('globalDelayPressMillisec', charDelay);
+                    const chunkSize = 50;
+                    for (let i = 0; i < data.text.length; i += chunkSize) {
+                        const chunk = data.text.slice(i, i + chunkSize);
+                        await ks.sendText(chunk);
+                        await new Promise(resolve => setTimeout(resolve, 10));
                     }
                 } else {
                     const script = `
                         tell application "System Events"
                             repeat with char in (text items of "${data.text}")
                                 keystroke char
-                                delay ${Math.floor(1000 / data.speed) / 1000}
+                                delay ${Math.floor(500 / data.speed) / 1000}
                             end repeat
                         end tell
                     `;
@@ -58,11 +60,51 @@ class ClipboardManagerApp {
 
         ipcMain.on('saveSettings', (event, settings: Settings) => {
             try {
+                if (this.settings.globalHotkey) {
+                    globalShortcut.unregister(this.settings.globalHotkey);
+                }
+
                 this.settings = settings;
+                
+                if (settings.globalHotkey) {
+                    const electronHotkey = this.convertHotkeyToElectron(settings.globalHotkey);
+                    
+                    globalShortcut.register(electronHotkey, () => {
+                        if (this.mainWindow) {
+                            this.mainWindow.show();
+                            this.mainWindow.focus();
+                        }
+                    });
+                }
+
                 this.saveSettings();
                 console.log('Settings saved:', settings);
             } catch (error) {
                 console.error('Error saving settings:', error);
+            }
+        });
+
+        ipcMain.on('minimize-window', () => {
+            if (this.mainWindow) {
+                this.mainWindow.minimize();
+            }
+        });
+
+        ipcMain.on('close-window', () => {
+            if (this.mainWindow) {
+                this.mainWindow.close();
+            }
+        });
+
+        ipcMain.on('adjust-window-size', (_, height) => {
+            if (this.mainWindow) {
+                const { height: screenHeight } = require('electron').screen.getPrimaryDisplay().workAreaSize;
+                const maxHeight = Math.floor(screenHeight * 0.9);
+                const minHeight = 500;
+                
+                const newHeight = Math.min(Math.max(height + 20, minHeight), maxHeight);
+                
+                this.mainWindow.setSize(520, newHeight);
             }
         });
     }
@@ -99,7 +141,7 @@ class ClipboardManagerApp {
             },
             frame: false,
             transparent: true,
-            resizable: false,
+            resizable: true,
             titleBarStyle: 'hidden',
             vibrancy: 'window',
             visualEffectState: 'active',
@@ -112,6 +154,10 @@ class ClipboardManagerApp {
             }
         });
 
+        this.mainWindow.on('will-resize', (event) => {
+            event.preventDefault();
+        });
+
         this.mainWindow.loadFile(path.join(__dirname, '../index.html'));
     }
 
@@ -119,6 +165,25 @@ class ClipboardManagerApp {
         if (process.platform !== 'darwin') {
             app.quit();
         }
+    }
+
+    private convertHotkeyToElectron(hotkey: string): string {
+        return hotkey
+            .replace('Strg', 'CommandOrControl')
+            .replace('Alt', 'Alt')
+            .replace('Shift', 'Shift')
+            .replace('Eingabe', 'Return')
+            .replace('Esc', 'Escape')
+            .replace('Leertaste', 'Space')
+            .replace('↑', 'Up')
+            .replace('↓', 'Down')
+            .replace('←', 'Left')
+            .replace('→', 'Right')
+            .replace(/\s+\+\s+/g, '+');
+    }
+
+    private cleanup() {
+        globalShortcut.unregisterAll();
     }
 }
 
