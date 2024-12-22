@@ -31,9 +31,16 @@ class ClipboardManagerApp {
             try {
                 if (process.platform === 'win32') {
                     const ks = require('node-key-sender');
+                    const path = require('path');
+                    
+                    const jarPath = path.join(process.resourcesPath, 'jar', 'key-sender.jar');
+                    ks.setKeyboardLayout("QWERTZ");
+                    ks.jarPath = jarPath;
+                    
                     const charDelay = Math.floor(200 / data.speed);
                     ks.setOption('globalDelayPressMillisec', charDelay);
                     const chunkSize = 50;
+                    
                     for (let i = 0; i < data.text.length; i += chunkSize) {
                         const chunk = data.text.slice(i, i + chunkSize);
                         await ks.sendText(chunk);

@@ -26,7 +26,8 @@
   },
   "dependencies": {
     "node-key-sender": "^1.0.11",
-    "applescript": "^1.0.0"
+    "applescript": "^1.0.0",
+    "robotjs": "^0.6.0"
   },
   "build": {
     "appId": "com.davethetank.typemate",
@@ -52,6 +53,13 @@
       "index.html",
       "styles.css",
       "build/icon.ico"
+    ],
+    "extraResources": [
+      {
+        "from": "node_modules/node-key-sender/jar",
+        "to": "jar",
+        "filter": ["*.jar"]
+      }
     ]
   }
 }
