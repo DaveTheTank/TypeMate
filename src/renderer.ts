@@ -1,18 +1,7 @@
 // Importieren Sie die Typdefinitionen
 import './types/electron';
 
-// Definieren Sie den Typ für das Window-Objekt
-declare global {
-    interface Window {
-        electronAPI: {
-            saveClipboard: (data: any) => void;
-            saveSettings: (settings: any) => void;
-            typeText: (data: { text: string, speed: number, delay: number }) => void;
-            saveTheme: (theme: string) => void;
-        }
-    }
-}
-
+// Die globale Deklaration wird jetzt aus electron.d.ts importiert
 class ClipboardUI {
     private clipboardList: HTMLDivElement;
     private addButton: HTMLButtonElement;
