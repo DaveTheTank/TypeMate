@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import * as robot from 'robotjs';
+import { keyboard, Key } from '@nut-tree/nut-js';
 
 const execPromise = promisify(exec);
 
@@ -26,7 +26,7 @@ class ClipboardManagerApp {
         this.setupIPCHandlers();
 
         if (process.platform === 'win32') {
-            robot.setKeyboardDelay(1);
+            keyboard.setKeyboardDelay(1);
         }
     }
 
@@ -41,15 +41,7 @@ class ClipboardManagerApp {
                     
                     for (const char of data.text) {
                         try {
-                            if (char === '\n') {
-                                robot.keyTap('enter');
-                            } else if (char === '\t') {
-                                robot.keyTap('tab');
-                            } else if (char === ' ') {
-                                robot.keyTap('space');
-                            } else {
-                                robot.typeString(char);
-                            }
+                            await keyboard.type(char);
                             await new Promise(resolve => setTimeout(resolve, charDelay));
                         } catch (charError) {
                             console.error('Error typing character:', char, charError);
