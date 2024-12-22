@@ -2,8 +2,12 @@ import { contextBridge, ipcRenderer } from 'electron';
 import { IElectronAPI } from './types/electron';
 
 const electronAPI: IElectronAPI = {
-    typeText: (data) => ipcRenderer.send('typeText', data),
-    saveSettings: (settings) => ipcRenderer.send('saveSettings', settings)
+    typeText: (data: { text: string; speed: number; delay: number }) => {
+        ipcRenderer.send('typeText', data);
+    },
+    saveSettings: (settings: { globalHotkey: string; startDelay: number }) => {
+        ipcRenderer.send('saveSettings', settings);
+    }
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI); 

@@ -1,3 +1,6 @@
+// Importieren Sie die Typdefinitionen
+import './types/electron';
+
 // Definieren Sie den Typ für das Window-Objekt
 declare global {
     interface Window {
